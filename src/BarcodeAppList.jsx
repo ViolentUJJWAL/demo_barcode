@@ -24,7 +24,12 @@ const BarcodeApp = () => {
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+                video: { 
+                    facingMode: "environment", 
+                    width: { ideal: 1280 }, 
+                    height: { ideal: 820 },
+                    focusMode: "continuous"
+                },
             });
 
             videoRef.current.srcObject = stream;
