@@ -166,6 +166,7 @@ const BarcodeApp = () => {
     const [scannedBarcodes, setScannedBarcodes] = useState([]);
     const [currentBarcode, setCurrentBarcode] = useState(null);
     const [scanningCurrent, setScanningCurrent] = useState(false);
+    const [manualInput, setManualInput] = useState("");
     const videoRef = useRef(null);
     const codeReader = useRef(null);
     const scanning = useRef(false);
@@ -257,6 +258,13 @@ const BarcodeApp = () => {
         }
     };
 
+    const handleManualSubmit = () => {
+        if (manualInput.trim()) {
+            addBarcode(manualInput.trim());
+            setManualInput("");
+        }
+    };
+
     useEffect(() => {
         window.addEventListener("keydown", handleBarcodeReaderInput);
         return () => {
@@ -287,6 +295,17 @@ const BarcodeApp = () => {
             ) : (
                 <button onClick={stopScanner} className="mt-2 bg-red-500 text-white p-2 rounded">Stop Camera</button>
             )}
+
+            <div className="mt-4">
+                <input
+                    type="text"
+                    value={manualInput}
+                    onChange={(e) => setManualInput(e.target.value)}
+                    placeholder="Enter barcode manually"
+                    className="p-2 border rounded"
+                />
+                <button onClick={handleManualSubmit} className="ml-2 bg-blue-500 text-white p-2 rounded">Add</button>
+            </div>
 
             <h2 className="text-lg font-bold mt-4">{scannedBarcodes.length} Scanned Barcodes</h2>
             <ul className="mt-2 border p-2 w-full max-w-md">
