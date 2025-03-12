@@ -1,13 +1,20 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
+import { defineConfig } from "vite";
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    tailwindcss(),
+  ],
   server: {
-    host: '0.0.0.0', // Allows external access
-    port: 3000, // Ensure this matches your ngrok port
+    port: 10000,  // Ensure this matches the port used in Render
+    host: "0.0.0.0",
+    strictPort: true,  // Ensures Vite only runs on the specified port
+    allowedHosts: [""], // Add your Render domain here
+  },
+  preview: {
+    port: 10000,
+    host: "0.0.0.0",
     strictPort: true,
-    cors: true,
-    allowedHosts: ['.ngrok-free.app'], // Allow all Ngrok subdomains
+    allowedHosts: [""],
   },
 });
