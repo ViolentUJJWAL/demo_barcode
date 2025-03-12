@@ -6,7 +6,7 @@ const BarcodeApp = () => {
     const [scannedBarcodes, setScannedBarcodes] = useState([]);
     const [currentBarcode, setCurrentBarcode] = useState(null);
     const videoRef = useRef(null);
-    const codeReader = useRef(null);
+    const codeReader = useRef(new BrowserMultiFormatReader());
     const scanning = useRef(false);
 
     // Beep sound function
@@ -17,23 +17,32 @@ const BarcodeApp = () => {
 
     // Start Barcode Scanner
     const startScanner = async () => {
-        if (!videoRef.current) return;
+        if (!videoRef.current || scanning.current) return;
 
-        codeReader.current = new BrowserMultiFormatReader();
         scanning.current = true;
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { 
-                    facingMode: "environment", 
-                    width: { ideal: 1280 }, 
+                video: {
+                    facingMode: "environment",
+                    width: { ideal: 1280 },
                     height: { ideal: 820 },
-                    focusMode: "continuous"
                 },
             });
 
             videoRef.current.srcObject = stream;
-            requestAnimationFrame(scanLoop);
+
+            codeReader.current.decodeFromVideoDevice(
+                undefined,
+                videoRef.current,
+                (result, error) => {
+                    if (result) {
+                        playBeep();
+                        setScannedBarcodes((prev) => [...prev, result.text]);
+                        setCurrentBarcode(result.text);
+                    }
+                }
+            );
         } catch (error) {
             console.error("Camera error:", error);
         }
@@ -42,41 +51,28 @@ const BarcodeApp = () => {
     // Stop Camera
     const stopScanner = () => {
         scanning.current = false;
+
         if (videoRef.current && videoRef.current.srcObject) {
-            videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
             videoRef.current.srcObject = null;
         }
-    };
 
-    // Continuous Scan Loop
-    const scanLoop = async () => {
-        if (!scanning.current || !codeReader.current) return;
-
-        try {
-            const result = await codeReader.current.decodeOnceFromVideoDevice(undefined, videoRef.current);
-            if (result) {
-                playBeep(); // Play beep sound
-                setScannedBarcodes(prev => [...prev, result.text]);
-                setCurrentBarcode(result.text);
-            }
-        } catch (err) {
-            requestAnimationFrame(scanLoop);
-        }
+        codeReader.current.reset();
     };
 
     const handleNext = () => {
         setCurrentBarcode(null);
-        requestAnimationFrame(scanLoop);
     };
 
     const handleRemove = () => {
-        setScannedBarcodes(prev => prev.filter((_, index) => index !== scannedBarcodes.indexOf(currentBarcode)));
+        setScannedBarcodes((prev) =>
+            prev.filter((_, index) => index !== scannedBarcodes.indexOf(currentBarcode))
+        );
         setCurrentBarcode(null);
-        requestAnimationFrame(scanLoop);
     };
 
     const deleteBarcode = (index) => {
-        setScannedBarcodes(prev => prev.filter((_, i) => i !== index));
+        setScannedBarcodes((prev) => prev.filter((_, i) => i !== index));
     };
 
     useEffect(() => {
@@ -106,7 +102,7 @@ const BarcodeApp = () => {
                 <button onClick={stopScanner} className="mt-2 bg-red-500 text-white p-2 rounded">Stop Camera</button>
             )}
 
-            <h2 className="text-lg font-bold mt-4">{(scannedBarcodes.length === 0)? "": scannedBarcodes.length} Scanned Barcodes</h2>
+            <h2 className="text-lg font-bold mt-4">{scannedBarcodes.length > 0 ? scannedBarcodes.length : ""} Scanned Barcodes</h2>
             <ul className="mt-2 border p-2 w-full max-w-md">
                 {scannedBarcodes.map((code, index) => (
                     <li key={index} className="p-1 border-b flex flex-col items-center">
