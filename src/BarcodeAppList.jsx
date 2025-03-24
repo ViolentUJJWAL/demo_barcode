@@ -170,14 +170,14 @@ const BarcodeApp = () => {
             ></div>
 
             {/* Vertical line */}
-            <div
+            {/* <div
               className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-red-500 opacity-70"
               style={{ transform: "translateX(-50%)" }}
-            ></div>
+            ></div> */}
 
             {/* Optional: Central targeting box */}
             <div
-              className="absolute top-1/2 left-1/2 w-64 h-16 border-2 border-blue-500 opacity-50"
+              className="absolute top-1/2 left-1/2 w-64 h-30 border-2 border-blue-500 opacity-50"
               style={{ transform: "translate(-50%, -50%)" }}
             ></div>
           </>
