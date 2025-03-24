@@ -48,7 +48,7 @@ const BarcodeApp = () => {
             videoRef.current.srcObject.getTracks().forEach(track => track.stop());
             videoRef.current.srcObject = null;
         }
-        if(codeReader.current){
+        if (codeReader.current) {
             codeReader.current.reset();
         }
     };
@@ -58,19 +58,28 @@ const BarcodeApp = () => {
 
         try {
             const result = await codeReader.current.decodeOnceFromVideoDevice(undefined, videoRef.current);
+
             if (result) {
-                playBeep();
-                addBarcode(result.text);
-            }
-            if(scanning.current){
-                requestAnimationFrame(scanLoop);
+                // Check for duplicate barcode
+                if (scannedBarcodes.includes(result.text)) {
+                    alert(`Duplicate barcode detected: ${result.text}`);
+                } else {
+                    playBeep();
+                    addBarcode(result.text);
+                }
+
+                // Pause scanning for 1 second to prevent multiple detections
+                scanning.current = false;
+                setTimeout(() => {
+                    scanning.current = true;
+                    if (scanning.current) requestAnimationFrame(scanLoop);
+                }, 1000);
             }
         } catch (err) {
-            if(scanning.current){
-                requestAnimationFrame(scanLoop);
-            }
+            if (scanning.current) requestAnimationFrame(scanLoop);
         }
     };
+
 
     const addBarcode = (barcode) => {
         if (!scannedBarcodes.includes(barcode)) {
@@ -135,37 +144,37 @@ const BarcodeApp = () => {
         <div className="p-4 flex flex-col items-center">
             <h1 className="text-xl font-bold mb-4">Barcode Scanner</h1>
 
-      <div className="relative">
-        <video
-          ref={videoRef}
-          style={{ width: "100%", height: "100%" }}
-          autoPlay
-          playsInline
-        ></video>
+            <div className="relative">
+                <video
+                    ref={videoRef}
+                    style={{ width: "100%", height: "100%" }}
+                    autoPlay
+                    playsInline
+                ></video>
 
-        {/* Horizontal and vertical center lines */}
-        {scanningCurrent && (
-          <>
-            {/* Horizontal line */}
-            <div
-              className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 opacity-70"
-              style={{ transform: "translateY(-50%)" }}
-            ></div>
+                {/* Horizontal and vertical center lines */}
+                {scanningCurrent && (
+                    <>
+                        {/* Horizontal line */}
+                        <div
+                            className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 opacity-70"
+                            style={{ transform: "translateY(-50%)" }}
+                        ></div>
 
-            {/* Vertical line */}
-            {/* <div
+                        {/* Vertical line */}
+                        {/* <div
               className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-red-500 opacity-70"
               style={{ transform: "translateX(-50%)" }}
             ></div> */}
 
-            {/* Optional: Central targeting box */}
-            <div
-              className="absolute top-1/2 left-1/2 w-64 h-30 border-2 border-blue-500 opacity-50"
-              style={{ transform: "translate(-50%, -50%)" }}
-            ></div>
-          </>
-        )}
-      </div>
+                        {/* Optional: Central targeting box */}
+                        <div
+                            className="absolute top-1/2 left-1/2 w-64 h-30 border-2 border-blue-500 opacity-50"
+                            style={{ transform: "translate(-50%, -50%)" }}
+                        ></div>
+                    </>
+                )}
+            </div>
 
             {!scanningCurrent ? (
                 <button onClick={startScanner} className="mt-2 bg-green-500 text-white p-2 rounded">Start Scanning</button>
