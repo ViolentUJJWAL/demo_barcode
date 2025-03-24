@@ -135,7 +135,37 @@ const BarcodeApp = () => {
         <div className="p-4 flex flex-col items-center">
             <h1 className="text-xl font-bold mb-4">Barcode Scanner</h1>
 
-            <video ref={videoRef} style={{ width: "100%", height: "100%" }} autoPlay playsInline></video>
+      <div className="relative">
+        <video
+          ref={videoRef}
+          style={{ width: "100%", height: "100%" }}
+          autoPlay
+          playsInline
+        ></video>
+
+        {/* Horizontal and vertical center lines */}
+        {scanningCurrent && (
+          <>
+            {/* Horizontal line */}
+            <div
+              className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 opacity-70"
+              style={{ transform: "translateY(-50%)" }}
+            ></div>
+
+            {/* Vertical line */}
+            {/* <div
+              className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-red-500 opacity-70"
+              style={{ transform: "translateX(-50%)" }}
+            ></div> */}
+
+            {/* Optional: Central targeting box */}
+            <div
+              className="absolute top-1/2 left-1/2 w-64 h-30 border-2 border-blue-500 opacity-50"
+              style={{ transform: "translate(-50%, -50%)" }}
+            ></div>
+          </>
+        )}
+      </div>
 
             {!scanningCurrent ? (
                 <button onClick={startScanner} className="mt-2 bg-green-500 text-white p-2 rounded">Start Scanning</button>
